@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>Images/mine.svg</file>
+        <file>Images/DataBase.svg</file>
+        <file>Images/user.svg</file>
     </qresource>
 </RCC>

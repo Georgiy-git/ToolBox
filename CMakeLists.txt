@@ -26,6 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         sources.qrc
         windowworkers.hpp windowworkers.cpp windowworkers.ui
         sqlite3.h
+        toolstable.hpp toolstable.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ToolBox APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

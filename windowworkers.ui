@@ -40,7 +40,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -126,7 +126,32 @@
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: white;</string>
+        <string notr="true">QScrollArea  {
+	background-color: white;
+}
+
+QScrollBar::vertical {
+    background-color: lightblue;
+    width: 12px;
+}
+
+    QScrollBar::handle:vertical {
+        background-color: steelblue;
+        min-height: 20px; 
+        border-radius: 6px;
+    }
+
+    QScrollBar::add-line:vertical {
+        height: 0px;
+        subcontrol-position: bottom;
+        subcontrol-origin: margin;
+    }
+
+    QScrollBar::sub-line:vertical {
+        height: 0 px;
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+    }</string>
        </property>
        <property name="widgetResizable">
         <bool>true</bool>
@@ -145,12 +170,12 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>230</x>
       <y>10</y>
-      <width>557</width>
+      <width>414</width>
       <height>34</height>
      </rect>
     </property>
@@ -175,13 +200,13 @@
         </font>
        </property>
        <property name="text">
-        <string>id: 12325325232353232</string>
+        <string>id: 123253</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>220</x>
@@ -227,12 +252,47 @@ background-color: #21618C;
          <height>30</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">border-color: black;</string>
        </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>10</y>
+      <width>35</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+background-color: red;
+border: none;
+color: white;
+margin: 1px 1px;
+border-radius: 5px;
+        }
+QPushButton:hover {
+background-color: pink;
+        }</string>
+    </property>
+    <property name="text">
+     <string>X</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
