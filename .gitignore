@@ -1,2 +1,5 @@
 build
 CMakeLists.txt.user
+sqlite3.h
+sqlite3.lib
+sqlite3.dll

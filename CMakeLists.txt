@@ -25,6 +25,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         sources.qrc
         windowworkers.hpp windowworkers.cpp windowworkers.ui
+        sqlite3.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ToolBox APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -44,7 +45,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(ToolBox PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(ToolBox PRIVATE Qt${QT_VERSION_MAJOR}::Widgets sqlite3)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
