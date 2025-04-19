@@ -24,7 +24,32 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: white;</string>
+     <string notr="true">QScrollArea  {
+	background-color: white;
+}
+
+QScrollBar::vertical {
+    background-color: lightblue;
+    width: 12px;
+}
+
+    QScrollBar::handle:vertical {
+        background-color: steelblue;
+        min-height: 20px; 
+        border-radius: 6px;
+    }
+
+    QScrollBar::add-line:vertical {
+        height: 0px;
+        subcontrol-position: bottom;
+        subcontrol-origin: margin;
+    }
+
+    QScrollBar::sub-line:vertical {
+        height: 0 px;
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+    }</string>
     </property>
     <property name="widgetResizable">
      <bool>true</bool>
@@ -37,6 +62,9 @@
        <width>569</width>
        <height>409</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: white;</string>
      </property>
     </widget>
    </widget>
@@ -164,6 +192,9 @@ QScrollBar::vertical {
           <width>198</width>
           <height>488</height>
          </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: white;</string>
         </property>
        </widget>
       </widget>
