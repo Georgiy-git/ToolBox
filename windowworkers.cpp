@@ -1,10 +1,10 @@
+#include "unit.hpp"
 #include "linetool.hpp"
 #include "toolstable.hpp"
 #include "windowworkers.hpp"
 #include "ui_windowworkers.h"
 
 #include <QMessageBox>
-#include <QtSql>
 
 WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
 {
@@ -21,6 +21,7 @@ WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
     tools_layout->setAlignment(Qt::AlignTop);
     ui->scrollArea_2->widget()->setLayout(tools_layout);
 
+    //База данных
     qdb = QSqlDatabase::addDatabase("QSQLITE");
     qdb.setDatabaseName("toolbox.db");
     qdb.open();
@@ -28,7 +29,6 @@ WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
     ok = q->exec("CREATE TABLE IF NOT EXISTS unit_tools (id INTEGER, tool TEXT, time TEXT)");
     pruf(ok);
 
-    //База данных
     db_ok = sqlite3_open("toolbox.db", &db);
     pruf_db(db_ok, error_db);
     db_ok = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS units"
@@ -38,7 +38,7 @@ WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
     db_ok = sqlite3_exec(db, "SELECT * FROM units", callback_db_units, this, &error_db);
     pruf_db(db_ok, error_db);
 
-    //Добавление юнитов
+    //Окно обавления юнитов
     add_unit = new QWidget(nullptr, Qt::WindowCloseButtonHint);
     add_unit->setFixedWidth(400);
     add_unit->setMaximumHeight(300);
@@ -58,10 +58,7 @@ WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
     add_unit->setLayout(add_unit_layout);
 }
 
-WindowWorkers::~WindowWorkers()
-{
-    delete ui;
-}
+WindowWorkers::~WindowWorkers() { delete ui; }
 
 void WindowWorkers::setCardVisible(bool x)
 {
@@ -93,7 +90,7 @@ void WindowWorkers::add_unit_get()
             str.clear();
             if (FIO.size() == 3) {
                 std::string sql = "INSERT INTO units (f, i, o) VALUES (";
-                for (auto& i : FIO) {
+                for (const auto& i : FIO) {
                     sql += "'" + i.toStdString() + "', ";
                 }
                 sql.pop_back();
@@ -102,24 +99,23 @@ void WindowWorkers::add_unit_get()
                 db_ok = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error_db);
                 pruf_db(db_ok, error_db);
 
-                std::shared_ptr<QPushButton> b = std::make_shared<QPushButton>();
+                std::shared_ptr<Unit> unit =
+                    std::make_shared<Unit>(FIO[0], FIO[1], FIO[2], ++last_id);
+                unit->button = std::make_shared<QPushButton>();
+                units.push_back(unit);
+                unit->iter = --units.end();
+
                 QString _fio = FIO[0] + ' ';
                 _fio += FIO[1].front();
                 _fio += ". ";
                 _fio += FIO[2].front();
                 _fio += '.';
-                b->setText(_fio);
-                b->setStyleSheet(blue_button_style);
-                std::vector<QString> strs;
-                strs.push_back(QString::number(++last_id));
-                strs.push_back(FIO[0]);
-                strs.push_back(FIO[1]);
-                strs.push_back(FIO[2]);
-                idfio.insert(strs);
-                connect(b.get(), &QPushButton::clicked, this,
-                        [=, this]{on_unit_clicked(strs); this_button = b.get(); });
-                unit_buttons.push_back(b);
-                units_layout->addWidget(b.get());
+                unit->button->setText(_fio);
+                unit->button->setStyleSheet(blue_button_style);
+
+                connect(unit->button.get(), &QPushButton::clicked, this,
+                        [=, this]{on_unit_clicked(unit.get()); this_unit = unit.get(); });
+                units_layout->addWidget(unit->button.get());
             }
             FIO.clear();
         }
@@ -164,27 +160,27 @@ int WindowWorkers::callback_db_units(void *x, int column, char **data, char **co
     str += ". ";
     str += QString(data[3]).front();
     str += '.';
-    std::shared_ptr<QPushButton> b = std::make_shared<QPushButton>();
-    obj->q->exec(QString("SELECT * FROM unit_tools WHERE id =") + data[0]);
-    obj->pruf(obj->q);
+    obj->ok = obj->q->exec(QString("SELECT * FROM unit_tools WHERE id =") + data[0]);
+    obj->pruf(obj->ok);
+    std::shared_ptr<Unit> unit =
+            std::make_shared<Unit>(QString(data[1]), QString(data[2]), QString(data[3]), obj->last_id);
+    unit->button = std::make_shared<QPushButton>();
     if (obj->q->next()) {
-        b->setStyleSheet(obj->red_button_style);
-        obj->units_layout->insertWidget(0, b.get());
+        unit->button->setStyleSheet(obj->red_button_style);
+        obj->units_layout->insertWidget(0, unit->button.get());
     }
     else {
-        b->setStyleSheet(obj->blue_button_style);
-        obj->units_layout->addWidget(b.get());
+        unit->button->setStyleSheet(obj->blue_button_style);
+        obj->units_layout->addWidget(unit->button.get());
     }
     obj->q->clear();
-    b->setText(str);
-    std::vector<QString> strs;
-    for (size_t i = 0; i<4; ++i) {
-        strs.push_back(QString(data[i]));
-    }
-    obj->idfio.insert(strs);
-    obj->connect(b.get(), QPushButton::clicked, obj,
-                 [=]{obj->on_unit_clicked(strs); obj->this_button = b.get();});
-    obj->unit_buttons.push_back(b);
+    unit->button->setText(str);
+
+    obj->units.push_back(unit);
+    unit->iter = --(obj->units.end());
+
+    obj->connect(unit->button.get(), QPushButton::clicked, obj,
+        [=]{obj->on_unit_clicked(unit.get()); obj->this_unit = unit.get(); } );
     return 0;
 }
 
@@ -209,38 +205,38 @@ void WindowWorkers::on_pushButton_clicked()
             QDateTime currentDateTime = QDateTime::currentDateTime();
             QString date = currentDateTime.toString("dd-MM-yyyy HH:mm");
             q->prepare("INSERT INTO unit_tools (id, tool, time) VALUES (:id, :tool, :time)");
-            q->bindValue(":id", this_idfio.front());
+            q->bindValue(":id", this_unit->id);
             q->bindValue(":tool", text);
             q->bindValue(":time", date);
             ok = q->exec();
             pruf(ok);
             ui->lineEdit_2->setText("");
             std::unique_ptr<LineTool> t =
-                    std::make_unique<LineTool>(text, date, q, this_idfio.front());
+                    std::make_unique<LineTool>(text, date, q, QString::number(this_unit->id));
             connect(t.get(), &LineTool::signal_click, this,
-                    [&]{if (lines_tool.size()==1) this_button->setStyleSheet(blue_button_style);});
+                    [&]{if (lines_tool.size()==1) this_unit->button->setStyleSheet(blue_button_style);});
             t->my_list = &lines_tool;
             tools_layout->addWidget(t.get());
             lines_tool.push_back(std::move(t));
             lines_tool.back()->me = --lines_tool.end();
-            this_button->setStyleSheet(red_button_style);
+            this_unit->button->setStyleSheet(red_button_style);
         }
     }
 }
 
-void WindowWorkers::on_unit_clicked(std::vector<QString> strs)
+void WindowWorkers::on_unit_clicked(Unit* unit)
 {
     lines_tool.clear();
-    this_idfio = strs;
-    ui->label_2->setText(strs.at(1) + ' ' + strs.at(2) + ' ' + strs.at(3));
-    ui->label_3->setText("id: " + strs.at(0));
-    ok = q->exec("SELECT * FROM unit_tools WHERE id = " + strs.at(0));
+    this_unit = unit;
+    ui->label_2->setText(unit->f + ' ' + unit->i + ' ' + unit->o);
+    ui->label_3->setText("id: " + QString::number(unit->id));
+    ok = q->exec("SELECT * FROM unit_tools WHERE id = " + QString::number(unit->id));
     pruf(ok);
     while (q->next()) {
         std::unique_ptr<LineTool> t = std::make_unique<LineTool>(q->value(1).toString(),
-                            q->value(2).toString(), q, this_idfio.front());
+                            q->value(2).toString(), q, QString::number(this_unit->id));
         connect(t.get(), &LineTool::signal_click, this,
-            [&]{if (lines_tool.size()==1) this_button->setStyleSheet(blue_button_style);});
+            [&]{if (lines_tool.size()==1) this_unit->button->setStyleSheet(blue_button_style);});
         t->my_list = &lines_tool;
         tools_layout->addWidget(t.get());
         lines_tool.push_back(std::move(t));
@@ -259,9 +255,7 @@ void WindowWorkers::closeEvent(QCloseEvent *event)
 void WindowWorkers::on_pushButton_2_clicked()
 {
     lines_tool.clear();
-    this_idfio.clear();
     add_unit_show = false;
-    this_button = nullptr;
     setCardVisible(false);
 }
 
@@ -281,12 +275,12 @@ void WindowWorkers::on_action_triggered()
 
 void WindowWorkers::on_lineEdit_textChanged(const QString &str)
 {
-    for (auto i : unit_buttons) {
-        if (!(i->text().startsWith(str.trimmed()))) {
-            i->hide();
+    for (auto i : units) {
+        if (!(i->button->text().startsWith(str.trimmed()))) {
+            i->button->hide();
         }
         else {
-            i->show();
+            i->button->show();
         }
     }
 }
@@ -311,9 +305,12 @@ void WindowWorkers::on_action_4_triggered()
         on_pushButton_2_clicked();
         ok = q->exec("DELETE FROM units WHERE id = "+l->text().trimmed());
         pruf(ok);
-        // db_ok = sqlite3_exec(db, "SELECT * FROM units", callback_db_units, this, &error_db);
-        // pruf_db(db_ok, error_db);
-        l->setText(" ");
+        for (const auto i : units) {
+            if (i->id == l->text().trimmed().toInt()) {
+                i->button->hide();
+            }
+        }
+        l->setText("");
         del_unit_window->hide();
     });
     la->addWidget(l);

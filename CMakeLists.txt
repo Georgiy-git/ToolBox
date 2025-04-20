@@ -29,6 +29,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         sqlite3.h
         toolstable.hpp toolstable.cpp
         linetool.hpp linetool.cpp
+        unit.hpp unit.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
