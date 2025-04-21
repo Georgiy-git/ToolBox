@@ -30,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         toolstable.hpp toolstable.cpp
         linetool.hpp linetool.cpp
         unit.hpp unit.cpp
+        tableimage.hpp tableimage.cpp
 
 
     )

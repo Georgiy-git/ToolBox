@@ -3,6 +3,8 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 
+#define COUNT_REAL_COLUMN 3
+
 ToolsTable::ToolsTable(sqlite3 *db, QSqlQuery* q) : db{db}, q{q}
 {
     setWindowTitle("Инструментальная база");
@@ -39,22 +41,26 @@ int ToolsTable::callback_get_data(void *x, int column, char **data, char **col_n
 {
     ToolsTable* t = static_cast<ToolsTable*>(x);
     t->setRowCount(t->rowCount()+1);
-    for (size_t i = 1; i<5; ++i) {
+    for (size_t i = 1; i<6; ++i) {
         std::shared_ptr<QTableWidgetItem> item;
-        if (data[i] != NULL) {
-            item = std::make_shared<QTableWidgetItem>(QString(data[i]));
-        }
-        else {
-            item = std::make_shared<QTableWidgetItem>(" ");
-        }
-        if (i != 4) {
+
+        if (i < 4) {
+            if (data[i] != NULL) {
+                item = std::make_shared<QTableWidgetItem>(QString(data[i]));
+            }
+            else {
+                item = std::make_shared<QTableWidgetItem>(" ");
+            }
             t->setItem(t->last_row, i-1, item.get());
             t->all.push_back(item);
         }
-        else {
-            t->all.push_back(std::make_shared<QTableWidgetItem>());
-            t->setItem(t->last_row, i, item.get());
+        else if (i == 4) {
             t->all.push_back(item);
+        }
+        else if (i == 5) {
+            if (data[i-1] != NULL) {
+
+            }
         }
     }
     t->last_row++;
@@ -64,10 +70,10 @@ int ToolsTable::callback_get_data(void *x, int column, char **data, char **col_n
 void ToolsTable::save_into_db()
 {
     for (size_t i = 0; i<rowCount(); ++i) {
-        QString sql = "REPLACE INTO tools (row, id, name, count, image) VALUES (";
+        QString sql = "REPLACE INTO tools (row, id, name, count) VALUES (";
         sql += QString::number(i) + ", ";
-        for (size_t j = 0; j<columnCount(); ++j) {
-            if (j == 3) {++j;}
+        for (size_t j = 0; j<columnCount()-2; ++j) {
+
             if (item(i, j)->text().trimmed().isEmpty()) {
                 sql += "NULL, ";
             }
@@ -88,7 +94,7 @@ void ToolsTable::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Equal) {
         int id = item(rowCount()-1, 0)->text().toInt()+1;
         setRowCount(rowCount()+1);
-        for (size_t i = 1; i<columnCount(); ++i) {
+        for (size_t i = 1; i<COUNT_REAL_COLUMN; ++i) {
             std::shared_ptr<QTableWidgetItem> item = std::make_shared<QTableWidgetItem>(" ");
             setItem(rowCount()-1, i, item.get());
             all.push_back(item);
@@ -98,8 +104,8 @@ void ToolsTable::keyPressEvent(QKeyEvent *event)
         all.push_back(item);
     }
     else if (event->key() == Qt::Key_Minus && rowCount() != last_row) {
+        for (int i = 0; i < COUNT_REAL_COLUMN; ++i) { all.pop_back(); }
         setRowCount(rowCount()-1);
-        for (int i = 0; i < columnCount(); ++i) { all.pop_back(); }
     }
     else if (event->key() == Qt::Key_S && (event->modifiers() & Qt::ControlModifier)) {
         save_into_db();
@@ -132,7 +138,7 @@ void ToolsTable::counts()
                                 all[num]->setForeground(QBrush(QColor(255, 255, 255))); }
         setItem(row, 3, all[num].get());
         ++row;
-        num += 5;
+        num += COUNT_REAL_COLUMN+1;
         }
     }
 }

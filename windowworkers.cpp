@@ -37,7 +37,7 @@ WindowWorkers::WindowWorkers(QSqlDatabase qdb) : ui(new Ui::WindowWorkers), qdb{
     db_ok = sqlite3_exec(db, "SELECT * FROM units", callback_db_units, this, &error_db);
     pruf_db(db_ok, error_db);
 
-    //Окно обавления юнитов
+    //Окно добавления юнитов
     add_unit = new QWidget(nullptr, Qt::WindowCloseButtonHint);
     add_unit->setFixedWidth(400);
     add_unit->setMaximumHeight(300);
@@ -289,6 +289,7 @@ void WindowWorkers::on_lineEdit_textChanged(const QString &str)
         pruf(ok);
         bool y = false;
         std::vector<std::shared_ptr<Unit>> v;
+
         while (q->next()) {//нач
 
         y = true;
@@ -302,7 +303,7 @@ void WindowWorkers::on_lineEdit_textChanged(const QString &str)
 
         if (!y) {
             for (auto i : units) {
-                i->button->show();
+                i->button->hide();
             }
             return;
         }
@@ -338,9 +339,13 @@ void WindowWorkers::on_action_4_triggered()
         on_pushButton_2_clicked();
         ok = q->exec("DELETE FROM units WHERE id = "+l->text().trimmed());
         pruf(ok);
+        ok = q->exec("DELETE FROM unit_tools WHERE id = "+l->text().trimmed());
+        pruf(ok);
         for (const auto i : units) {
             if (i->id == l->text().trimmed().toInt()) {
+                units.erase(i->iter);
                 i->button->hide();
+                break;
             }
         }
         l->setText("");
