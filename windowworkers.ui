@@ -74,7 +74,7 @@ QScrollBar::vertical {
       <x>10</x>
       <y>0</y>
       <width>202</width>
-      <height>572</height>
+      <height>607</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -132,6 +132,9 @@ QScrollBar::vertical {
         </size>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox"/>
      </item>
      <item>
       <widget class="QScrollArea" name="scrollArea">

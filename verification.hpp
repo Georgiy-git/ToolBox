@@ -2,6 +2,8 @@
 #define VERIFICATION_HPP
 
 #include <QWidget>
+#include <QtSql>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class WindowVerification; }
@@ -14,11 +16,17 @@ class WindowVerification : public QWidget
 public:
     WindowVerification();
     ~WindowVerification();
+    void pruf(bool);
 
 private slots:
     void on_pushButton_clicked();
 
 private:
     Ui::WindowVerification *ui;
+
+    QSqlQuery* q;
+    QSqlDatabase db;
+    int ok;
+
 };
 #endif // VERIFICATION_HPP

@@ -28,7 +28,7 @@ class WindowWorkers : public QMainWindow
     Q_OBJECT
 
 public:
-    WindowWorkers();
+    WindowWorkers(QSqlDatabase qdb);
     ~WindowWorkers();
 
 private slots:
@@ -43,6 +43,8 @@ private slots:
     void on_lineEdit_textChanged(const QString &str); //Поиск юнита
 
     void on_action_4_triggered(); //Удаление юнита
+
+    void on_comboBox_activated(int index);
 
 private:
     //Разное

@@ -5,8 +5,9 @@
 #include "ui_windowworkers.h"
 
 #include <QMessageBox>
+#include <QComboBox>
 
-WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
+WindowWorkers::WindowWorkers(QSqlDatabase qdb) : ui(new Ui::WindowWorkers), qdb{qdb}
 {
     ui->setupUi(this);
     setFixedSize(800, 600);
@@ -20,11 +21,9 @@ WindowWorkers::WindowWorkers() : ui(new Ui::WindowWorkers)
     tools_layout = new QVBoxLayout;
     tools_layout->setAlignment(Qt::AlignTop);
     ui->scrollArea_2->widget()->setLayout(tools_layout);
+    ui->comboBox->addItems({"По имени", "По инструменту"});
 
     //База данных
-    qdb = QSqlDatabase::addDatabase("QSQLITE");
-    qdb.setDatabaseName("toolbox.db");
-    qdb.open();
     q = new QSqlQuery(qdb);
     ok = q->exec("CREATE TABLE IF NOT EXISTS unit_tools (id INTEGER, tool TEXT, time TEXT)");
     pruf(ok);
@@ -203,7 +202,7 @@ void WindowWorkers::on_pushButton_clicked()
         QString text = ui->lineEdit_2->text().trimmed();
         if (!text.isEmpty()) {
             QDateTime currentDateTime = QDateTime::currentDateTime();
-            QString date = currentDateTime.toString("dd-MM-yyyy HH:mm");
+            QString date = currentDateTime.toString("dd-MM-yyyy HH:mm ss сек");
             q->prepare("INSERT INTO unit_tools (id, tool, time) VALUES (:id, :tool, :time)");
             q->bindValue(":id", this_unit->id);
             q->bindValue(":tool", text);
@@ -275,11 +274,45 @@ void WindowWorkers::on_action_triggered()
 
 void WindowWorkers::on_lineEdit_textChanged(const QString &str)
 {
-    for (auto i : units) {
-        if (!(i->button->text().startsWith(str.trimmed()))) {
+    if (ui->comboBox->currentText() == "По имени") {
+        for (auto i : units) {
+            if (!(i->button->text().startsWith(str.trimmed()))) {
+                i->button->hide();
+            }
+            else {
+                i->button->show();
+            }
+        }
+    }
+    else {
+        ok = q->exec("SELECT id FROM unit_tools WHERE tool='"+str+"'");
+        pruf(ok);
+        bool y = false;
+        std::vector<std::shared_ptr<Unit>> v;
+        while (q->next()) {//нач
+
+        y = true;
+        int _id = q->value(0).toInt();
+        for (auto i : units) {
+            if (i->id == _id) {
+                v.push_back(i);
+            }
+        }
+        }//кон
+
+        if (!y) {
+            for (auto i : units) {
+                i->button->show();
+            }
+            return;
+        }
+
+        for (auto i : units) {
             i->button->hide();
         }
-        else {
+
+
+        for (auto i : v) {
             i->button->show();
         }
     }
@@ -322,5 +355,12 @@ void WindowWorkers::on_action_4_triggered()
         del_unit_window->hide();
         del_unit_window->show();
     }
+}
+
+
+void WindowWorkers::on_comboBox_activated(int index)
+{
+    QString x = ui->lineEdit->text();
+    on_lineEdit_textChanged(x);
 }
 

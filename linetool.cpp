@@ -24,7 +24,8 @@ LineTool::LineTool(QString _tool_name, QString _date, QSqlQuery *q, QString unit
 
 void LineTool::refund()
 {
-    if (!q->exec("DELETE FROM unit_tools WHERE id = "+unit_id+" AND time = '"+_date+"'")) {
+    if (!q->exec("DELETE FROM unit_tools WHERE id = "+unit_id+
+                " AND tool = '"+_tool_name+"' AND time ='"+_date+"'")) {
        QMessageBox::critical(nullptr, QString("Ошибка базы данных"), q->lastError().text());
     } else {
         emit signal_click();
