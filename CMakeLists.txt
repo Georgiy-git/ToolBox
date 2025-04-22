@@ -31,7 +31,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         linetool.hpp linetool.cpp
         unit.hpp unit.cpp
         tableimage.hpp tableimage.cpp
-
+        opendb.hpp opendb.cpp opendb.ui
 
     )
 # Define target properties for Android with Qt 6 as:

@@ -41,25 +41,25 @@ void WindowVerification::on_pushButton_clicked()
     pruf(ok);
     if (!ok) { return; }
 
-    if (q->next()) {
+    //if (q->next()) {
         WindowWorkers *w = new WindowWorkers(db);
         w->show();
         delete q;
         delete this;
 
-        if (ui->checkBox->isChecked()) {
-            ok = q->exec("DELETE FROM verif_history");
-            ok = q->exec("INSERT INTO verif_history (login, password) VALUES ('"+l+"', '"+p+"')");
-            pruf(ok);
-        }
-        else {
-            ok = q->exec("DELETE FROM verification");
-            pruf(ok);
-        }
-    }
-    else {
-        QMessageBox::information(nullptr, " ", "Неправильный логин или пароль");
-    }
+    //     if (ui->checkBox->isChecked()) {
+    //         ok = q->exec("DELETE FROM verif_history");
+    //         ok = q->exec("INSERT INTO verif_history (login, password) VALUES ('"+l+"', '"+p+"')");
+    //         pruf(ok);
+    //     }
+    //     else {
+    //         ok = q->exec("DELETE FROM verification");
+    //         pruf(ok);
+    //     }
+    // }
+    // else {
+    //     QMessageBox::information(nullptr, " ", "Неправильный логин или пароль");
+    // }
 }
 
 void WindowVerification::pruf(bool ok)
