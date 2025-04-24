@@ -24,6 +24,7 @@ class WindowWorkers;
 class ToolsTable;
 class LineTool;
 class Unit;
+class SubToolsTable;
 
 class WindowWorkers : public QMainWindow
 {
@@ -52,6 +53,10 @@ private slots:
 
     void on_lineEdit_2_returnPressed();
 
+    void on_action_6_triggered();
+
+    void on_action_2_triggered();
+
 private:
     //Разное
     Ui::WindowWorkers *ui;
@@ -65,6 +70,13 @@ private:
     //Окно добавления админов
     QWidget* add_admin_window = nullptr;
     bool add_admin_is_open = false;
+
+    //Окно создания таблиц
+    QWidget* add_table_window = nullptr;
+    bool add_table_is_open = false;
+    std::shared_ptr<SubToolsTable> subtable;
+    void make_del_sub();
+    int make_del_bool;
 
     //Юнит
     int last_id = 0;

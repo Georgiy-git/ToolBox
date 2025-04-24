@@ -355,6 +355,8 @@ background-color: pink;
     </property>
     <addaction name="action_6"/>
     <addaction name="separator"/>
+    <addaction name="action_2"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -382,6 +384,11 @@ background-color: pink;
   <action name="action_6">
    <property name="text">
     <string>Создать</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Удалить</string>
    </property>
   </action>
  </widget>

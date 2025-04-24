@@ -32,6 +32,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         unit.hpp unit.cpp
         tableimage.hpp tableimage.cpp
         opendb.hpp opendb.cpp opendb.ui
+        subtoolstable.hpp subtoolstable.cpp
 
 
     )

@@ -1,3 +1,4 @@
+#include "subtoolstable.hpp"
 #include "unit.hpp"
 #include "linetool.hpp"
 #include "toolstable.hpp"
@@ -27,6 +28,22 @@ WindowWorkers::WindowWorkers(QSqlDatabase qdb) : ui(new Ui::WindowWorkers), qdb{
     q = new QSqlQuery(qdb);
     ok = q->exec("CREATE TABLE IF NOT EXISTS unit_tools (id INTEGER, tool TEXT, time TEXT)");
     pruf(ok);
+
+    //Заполнение подтаблиц
+    ok = q->exec("CREATE TABLE IF NOT EXISTS subtables (name TEXT)");
+    pruf(ok);
+    ok = q->exec("SELECT * FROM subtables");
+    pruf(ok);
+    while (q->next()) {
+        QString res = q->value(0).toString();
+        QAction* action = new QAction(res);
+        action->setIcon(QIcon(":/Images/DataBase.svg"));
+        ui->menu_2->addAction(action);
+        connect(action, &QAction::triggered, this, [=]{
+            subtable = std::make_shared<SubToolsTable>(q, res);
+            subtable->show();
+        });
+    }
 
     db_ok = sqlite3_open("toolbox.db", &db);
     pruf_db(db_ok, error_db);
@@ -263,6 +280,59 @@ void WindowWorkers::keyPressEvent(QKeyEvent *event)
     }
 }
 
+void WindowWorkers::make_del_sub()
+{
+    if (!add_table_is_open) {
+        add_table_window = new QWidget;
+        add_table_window->setWindowIcon(QIcon(":/Images/mine.svg"));
+        add_table_window->setWindowTitle(" ");
+        add_table_window->setMinimumWidth(300);
+        add_table_window->setMinimumWidth(400);
+        QVBoxLayout* _layout = new QVBoxLayout(add_table_window);
+        QLineEdit* line = new QLineEdit(add_table_window);
+        QPushButton* b = new QPushButton(add_table_window);
+        connect(b, &QPushButton::clicked, this, [=]{
+            QString res = line->text().trimmed();
+            if (make_del_bool == 1) {
+                ok = q->exec("INSERT INTO subtables (name) VALUES ('"+res+"')");
+                pruf(ok);
+                subtable = std::make_shared<SubToolsTable>(q, res);
+                subtable->show();
+
+                QAction* action = new QAction(res);
+                action->setIcon(QIcon(":/Images/DataBase.svg"));
+                ui->menu_2->addAction(action);
+                connect(action, &QAction::triggered, this, [=]{
+                    subtable = std::make_shared<SubToolsTable>(q, res);
+                    subtable->show();
+                });
+            }
+            else if (make_del_bool == 2) {
+                ok = q->exec("DELETE FROM subtables WHERE name ='"+res+"'");
+                pruf(ok);
+                ok = q->exec("DROP TABLE "+res);
+                pruf(ok);
+            }
+            line->setText("");
+            add_table_window->hide();
+        });
+        line->setPlaceholderText("Введите название таблицы");
+        line->setFixedHeight(26);
+        line->setStyleSheet("border: none;");
+        b->setStyleSheet(blue_button_style);
+        b->setText("Создать");
+        b->setFixedSize(100, 30);
+        _layout->addWidget(line);
+        _layout->addWidget(b, 0, Qt::AlignCenter);
+        add_table_window->show();
+        add_table_is_open = true;
+    }
+    else {
+        add_table_window->hide();
+        add_table_window->show();
+    }
+}
+
 void WindowWorkers::set_comleter()
 {
     list.clear();
@@ -421,7 +491,7 @@ void WindowWorkers::on_action_5_triggered()
         adm_le_log->setFixedHeight(26);
         adm_le_log->setStyleSheet("border: none;");
         adm_le_pas->setStyleSheet("border: none;");
-        adm_le_pas->setFixedHeight(30);
+        adm_le_pas->setFixedHeight(26);
         adm_b->setStyleSheet(blue_button_style);
         adm_b->setText("Добавить");
         adm_b->setFixedSize(100, 30);
@@ -441,5 +511,19 @@ void WindowWorkers::on_action_5_triggered()
 void WindowWorkers::on_lineEdit_2_returnPressed()
 {
     on_pushButton_clicked();
+}
+
+
+void WindowWorkers::on_action_6_triggered()
+{
+    make_del_bool = 1;
+    make_del_sub();
+}
+
+
+void WindowWorkers::on_action_2_triggered()
+{
+    make_del_bool = 2;
+    make_del_sub();
 }
 
