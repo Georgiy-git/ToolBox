@@ -10,7 +10,7 @@
 WindowWorkers::WindowWorkers(QSqlDatabase qdb) : ui(new Ui::WindowWorkers), qdb{qdb}
 {
     ui->setupUi(this);
-    setFixedSize(800, 600);
+    setMinimumSize(800, 550);
     setWindowTitle("ToolBox");
     setWindowIcon(QIcon(":/Images/mine.svg"));
     ui->lineEdit->setPlaceholderText("Поиск");
@@ -36,6 +36,9 @@ WindowWorkers::WindowWorkers(QSqlDatabase qdb) : ui(new Ui::WindowWorkers), qdb{
     pruf_db(db_ok, error_db);
     db_ok = sqlite3_exec(db, "SELECT * FROM units", callback_db_units, this, &error_db);
     pruf_db(db_ok, error_db);
+
+    //Completer
+    set_comleter();
 
     //Окно добавления юнитов
     add_unit = new QWidget(nullptr, Qt::WindowCloseButtonHint);
@@ -250,6 +253,28 @@ void WindowWorkers::closeEvent(QCloseEvent *event)
     QApplication::quit();
 }
 
+void WindowWorkers::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_1) {
+        set_comleter();
+    }
+    else {
+        QMainWindow::keyPressEvent(event);
+    }
+}
+
+void WindowWorkers::set_comleter()
+{
+    list.clear();
+    ok = q->exec("SELECT name FROM tools");
+    pruf(ok);
+    while (q->next()) {
+        list.append(q->value(0).toString());
+    }
+    completer = std::make_shared<QCompleter>(list);
+    ui->lineEdit_2->setCompleter(completer.get());
+}
+
 
 void WindowWorkers::on_pushButton_2_clicked()
 {
@@ -367,5 +392,54 @@ void WindowWorkers::on_comboBox_activated(int index)
 {
     QString x = ui->lineEdit->text();
     on_lineEdit_textChanged(x);
+}
+
+
+void WindowWorkers::on_action_5_triggered()
+{
+    if (!add_admin_is_open) {
+        add_admin_window = new QWidget;
+        add_admin_window->setWindowIcon(QIcon(":/Images/user.svg"));
+        add_admin_window->setWindowTitle(" ");
+        add_admin_window->setMinimumWidth(300);
+        add_admin_window->setMinimumWidth(400);
+        QVBoxLayout* _layout = new QVBoxLayout(add_admin_window);
+        QLineEdit* adm_le_log = new QLineEdit(add_admin_window);
+        QLineEdit* adm_le_pas = new QLineEdit(add_admin_window);
+        QPushButton* adm_b = new QPushButton(add_admin_window);
+        connect(adm_b, &QPushButton::clicked, this, [=, this]{
+            QString log = adm_le_log->text().trimmed();
+            QString pas = adm_le_pas->text().trimmed();
+            ok = q->exec("INSERT INTO verification (login, password) VALUES ('"+log+"', '"+
+                         pas+"')");
+            pruf(ok);
+            adm_le_log->setText("");
+            adm_le_pas->setText("");
+        });
+        adm_le_log->setPlaceholderText("Логин");
+        adm_le_pas->setPlaceholderText("Пароль");
+        adm_le_log->setFixedHeight(26);
+        adm_le_log->setStyleSheet("border: none;");
+        adm_le_pas->setStyleSheet("border: none;");
+        adm_le_pas->setFixedHeight(30);
+        adm_b->setStyleSheet(blue_button_style);
+        adm_b->setText("Добавить");
+        adm_b->setFixedSize(100, 30);
+        _layout->addWidget(adm_le_log);
+        _layout->addWidget(adm_le_pas);
+        _layout->addWidget(adm_b, 0, Qt::AlignCenter);
+        add_admin_window->show();
+        add_admin_is_open = true;
+    }
+    else {
+        add_admin_window->hide();
+        add_admin_window->show();
+    }
+}
+
+
+void WindowWorkers::on_lineEdit_2_returnPressed()
+{
+    on_pushButton_clicked();
 }
 

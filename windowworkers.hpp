@@ -14,6 +14,8 @@
 #include <set>
 #include <list>
 #include "sqlite3.h"
+#include <QCompleter>
+#include <QKeyEvent>
 
 namespace Ui {
 class WindowWorkers;
@@ -46,6 +48,10 @@ private slots:
 
     void on_comboBox_activated(int index);
 
+    void on_action_5_triggered();
+
+    void on_lineEdit_2_returnPressed();
+
 private:
     //Разное
     Ui::WindowWorkers *ui;
@@ -54,11 +60,20 @@ private:
     ToolsTable* toolstable = nullptr;
     std::list<std::unique_ptr<LineTool>> lines_tool;
     void closeEvent(QCloseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+
+    //Окно добавления админов
+    QWidget* add_admin_window = nullptr;
+    bool add_admin_is_open = false;
 
     //Юнит
     int last_id = 0;
     Unit* this_unit;
     std::vector<std::shared_ptr<Unit>> units;
+    std::shared_ptr<QCompleter> completer;
+    QStringListModel str_model;
+    QStringList list;
+    void set_comleter();
     void add_unit_get();
     void on_unit_clicked(Unit *unit); //Нажатие на кнопку юнита
 

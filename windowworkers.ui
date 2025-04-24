@@ -74,7 +74,7 @@ QScrollBar::vertical {
       <x>10</x>
       <y>0</y>
       <width>202</width>
-      <height>607</height>
+      <height>517</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -139,7 +139,7 @@ QScrollBar::vertical {
      <item>
       <widget class="QScrollArea" name="scrollArea">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -147,7 +147,7 @@ QScrollBar::vertical {
        <property name="minimumSize">
         <size>
          <width>200</width>
-         <height>490</height>
+         <height>400</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -193,7 +193,7 @@ QScrollBar::vertical {
           <x>0</x>
           <y>0</y>
           <width>198</width>
-          <height>488</height>
+          <height>398</height>
          </rect>
         </property>
         <property name="styleSheet">
@@ -346,8 +346,18 @@ background-color: pink;
     <addaction name="separator"/>
     <addaction name="action_3"/>
     <addaction name="action_4"/>
+    <addaction name="separator"/>
+    <addaction name="action_5"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Подсклады</string>
+    </property>
+    <addaction name="action_6"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <action name="action">
    <property name="text">
@@ -362,6 +372,16 @@ background-color: pink;
   <action name="action_4">
    <property name="text">
     <string>Удалить юнит</string>
+   </property>
+  </action>
+  <action name="action_5">
+   <property name="text">
+    <string>Добавить администратора</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>Создать</string>
    </property>
   </action>
  </widget>

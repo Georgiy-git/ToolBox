@@ -176,6 +176,7 @@ void ToolsTable::counts()
 
 void ToolsTable::reload()
 {
+    save_into_db();
     last_row = 0;
     all.clear();
     images.clear();
